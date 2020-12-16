@@ -146,28 +146,21 @@ Creuse **lecture(char* nom_fichier){
     for(unsigned int j = 0; j<i; j++)
         tampon1[j] = tampon2[j];
     quicksort(tampon1,0,i-1);
+    float *tampon3 = malloc(sizeof(float)*i);
+    unsigned int h = 0;
+    for(unsigned int b = 0; b<i-1; b++)
+        if(tampon1[b]!=tampon1[b+1])
+            tampon3[h++] = tampon1[b];
+    tampon3[h++] = tampon1[i-1];
 
-    // for(size_t j = 1; j<i; j++){
-    //     if(tampon1[j-1] == tampon1[j]){
-    //         pos=j;
-    //         while (j < i&&tampon1[j - 1] == tampon1[j])
-    //         {
-    //             j++;
-    //             tri--;
-    //         }
-    //         tampon1[pos] = tampon1[j];
-    //         pre_pos= pos +1;
-    //     }
-    // }
-
-    unsigned int max = i-1;
+    unsigned int max = h-1;
     unsigned int min = 0;
     for(size_t j = 0; j<i;j++){
-        compteur=i/2;
-        max = i+1;
+        compteur=h/2;
+        max = h+1;
         min = 0;
-        while(tampon1[compteur]!=tampon2[j]){
-            if(tampon1[compteur]>tampon2[j])
+        while(tampon3[compteur]!=tampon2[j]){
+            if(tampon3[compteur]>tampon2[j])
                 max = compteur;
             else
                 min = compteur;
@@ -176,22 +169,38 @@ Creuse **lecture(char* nom_fichier){
         matrice1->row[j]=compteur;
     }
 
-    float diff=0;
-    add=0;
-    unsigned int k;
-    for(k = 1; k<nombre_colonne; k++){
-        diff = matrice1->startCol[k]- matrice1->startCol[k-1];
-        for(float j = 0; j<diff; j++){
-            matrice1->values[k-1+add] = 1/diff;
-            add++;
+    float diff=1;
+    unsigned int k=0;
+    for(unsigned int j = 0; j<i-1; j++){
+        diff=1;
+        while(tampon1[j] == tampon1[j+1]){
+            diff++;
+            j++;
         }
-        add--;
+        tampon3[k] = 1/diff;
+        k++;
     }
+    
+    for(unsigned int j = 0; j<matrice1->nz; j++)
+        matrice1->values[j] = tampon3[matrice1->row[j]];
 
-    diff = i-k-add+1;
-    for(unsigned int j = 0; j<diff; j++){
-        matrice1->values[k-1+add+j]= 1/diff;
-    }
+    //jfkshjrbgyuhvjbhu
+    // add=0;
+    // unsigned int k;
+    // for(k = 1; k<nombre_colonne; k++){
+    //     diff = matrice1->startCol[k]- matrice1->startCol[k-1];
+    //     for(float j = 0; j<diff; j++){
+    //         matrice1->values[k-1+add] = 1/diff;
+    //         add++;
+    //     }
+    //     add--;
+    // }
+
+    // diff = i-k-add+1;
+    // for(unsigned int j = 0; j<diff; j++){
+    //     matrice1->values[k-1+add+j]= 1/diff;
+    // }
+    //yufggdiuvggfurur
 
     Creuse *matrice2 = malloc(sizeof(Creuse));
     matrice2->nz = i;
@@ -212,6 +221,7 @@ Creuse **lecture(char* nom_fichier){
 
     free(tampon1);
     free(tampon2);
+    free(tampon3);
 
     return tableau_matrice;
 }
@@ -234,7 +244,7 @@ unsigned int nombre_col(Creuse *A){
     return taille_col +1;
 }
 
-Creuse *produitMatriceVecteurDense(Creuse *A, float *vecteur){
+float *produitMatriceVecteurDense(Creuse *A, float *vecteur){
     unsigned int taille_vecteur = nombre_col(A);
     unsigned int add = 0;
     float *vecteur_y = malloc(sizeof(float)*taille_vecteur);
